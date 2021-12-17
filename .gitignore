@@ -104,3 +104,4 @@ dist
 .tern-port
 /artifacts
 /cache
+/.idea
