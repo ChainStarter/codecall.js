@@ -154,10 +154,18 @@ const call = async (code, _chainId = chainId) => {
   return decode
 }
 
+/**
+ * get current chain id
+ * @returns {number}
+ */
 const getCurrentChainId = () => {
   return chainId
 }
 
+/**
+ * get current config
+ * @returns {{"[ChainId.POLYGON]": {address: string, rpc: string}}}
+ */
 const getConfig = () => {
   return config
 }
