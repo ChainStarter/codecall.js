@@ -1,38 +1,42 @@
-const {Worker} = require("worker_threads");
-const {modules} = require("web3");
-const isNode = (typeof exports === 'object') ? true: false;
+// const isNode = typeof process === 'object' && !process.browser ? true: false;
+import {Config, ChainId} from './const'
 let requestId = 0
 let requestList = []
 
+/**
+ * resolve or reject request
+ * @param requestId
+ * @param data
+ * @param error
+ * @param errorMsg
+ */
 const processRequest = (requestId, data, error, errorMsg) => {
   const index = requestList.findIndex(o => o.requestId === requestId)
   if(index > -1){
     const {resolve, reject} = requestList[index]
-    console.log(errorMsg)
     requestList.splice(index, 1)
     if(error){
       reject(errorMsg)
     }else{
       resolve(data)
     }
-
   }
 }
 
+/**
+ * request worker
+ * @param path
+ * @constructor
+ */
 const Client = function(path = './codecall.worker.js'){
-  if(isNode){
-    const { Worker} = require('worker_threads');
     this.worker = new Worker(path)
-    this.worker.on('message', ({requestId, data, error, errorMsg}) => {
-      processRequest(requestId, data, error, errorMsg)
-    })
-  }else{
-    this.worker = new window.Worker(path)
-    this.worker.onmessage = (evt) => {
-       console.log(evt)
-      // processRequest(evt,)
+    this.worker.onerror = e => {
+        console.log(e)
     }
-  }
+    this.worker.onmessage = (evt) => {
+      const {requestId, data, error, errorMsg} = evt.data
+      processRequest(requestId, data, error, errorMsg)
+    }
 }
 
 /**
@@ -44,11 +48,6 @@ const Client = function(path = './codecall.worker.js'){
 Client.prototype.request = function(method, data = []) {
   return new Promise((resolve, reject) => {
     const _requestId = requestId++
-    const onmessage = (evt) => {
-      if(evt.requestId === _requestId){
-        resolve(data)
-      }
-    }
 
     requestList.push({
       requestId: _requestId,
@@ -140,4 +139,8 @@ Client.prototype.decodeData = function(data, abi) {
   return this.request('decodeData', [data, abi])
 }
 
-module.exports = Client
+export {
+  Client,
+  ChainId,
+  Config
+}

@@ -1,9 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const hre = require("hardhat");
-const {call, addChain, setDefaultChainId, getConfig, getCurrentChainId, getContractBytesCode} = require('../src/index')
-const {ChainId} = require("../src/const");
-const {compile, decodeData} = require("../src");
+const {call, addChain, setDefaultChainId, getConfig, getCurrentChainId, getContractBytesCode, compile, decodeData, ChainId} = require('../dist/node')
 
 let caller, CallerArtifact;
 let chainId = 31337;
@@ -20,7 +18,7 @@ const deployCaller =async () => {
   return caller
 }
 
-describe("caller", function () {
+describe("core", function () {
   before(async function() {
     // deploy caller contract
     caller = await deployCaller()
@@ -146,17 +144,6 @@ describe("caller", function () {
   })
 
   it("call", async function () {
-    const address = caller.address
-    // add hardhat chain
-    addChain(chainId,
-      {
-        address,
-        rpc: hre.network.provider
-      })
-
-    // set default chain
-    setDefaultChainId(chainId)
-
     // call data
     const data = await call(`
         contract Request {

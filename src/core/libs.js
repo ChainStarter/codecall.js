@@ -1,14 +1,7 @@
-/**
- * 1. 编译sol代码，编译成字节码
- * 2. 发送请求，获取返回
- * @type {{}}
- */
-const solc = require('solc');
-const Web3 = require('web3');
-
-const AbiCoder = require('web3-eth-abi');
-const CallAbi = require('./abis/Caller.json')
-const {ChainId, Config} = require("./const");
+import axios from 'axios';
+import AbiCoder from 'web3-eth-abi';
+import CallAbi from '../abis/Caller.json'
+import {ChainId, Config} from "../const";
 
 /**
  * define default params
@@ -16,6 +9,7 @@ const {ChainId, Config} = require("./const");
  */
 let chainId = ChainId.POLYGON
 let config = Config
+let solc = null
 
 /**
  * add chain config
@@ -36,6 +30,10 @@ const addChain = (_chainId, _config) => {
   })
 }
 
+const setSolc = (_solc) => {
+  solc = _solc
+}
+
 /**
  * set default chainId
  * @param _chainId
@@ -49,7 +47,7 @@ const setDefaultChainId = (_chainId) => {
 }
 
 /**
- * compile contract , only support 0.7.3
+ * compile contract , only support 0.7.4
  * @param code solidity code
  * @returns contract The contract object
  */
@@ -60,7 +58,7 @@ const compile = (code) => {
       'request': {
         content: `
         // SPDX-License-Identifier: GPL-3.0
-        pragma solidity 0.7.3;
+        pragma solidity 0.7.4;
         ${code}
         `
       }
@@ -109,17 +107,6 @@ const getContractBytesCode= (code) => {
 }
 
 /**
- * get caller contract object
- * @param _config
- * @returns {Contract}
- */
-const getCallContract = (_config) => {
-  const web3 = new Web3(_config.rpc)
-  const caller = new web3.eth.Contract(CallAbi, _config.address);
-  return caller
-}
-
-/**
  * decode return data with abi
  * @param data
  * @param abi
@@ -145,12 +132,23 @@ const decodeData = (data, abi) => {
 const call = async (code, _chainId = chainId) => {
   const {bytesCode, outputAbi} = getContractBytesCode(code)
 
-  const caller = getCallContract(config[_chainId])
+  const requestData = AbiCoder.encodeFunctionCall(CallAbi[0], [bytesCode, 1])
 
-  const data = await caller.methods.send(bytesCode, 1).call()
+  const _config = config[chainId]
 
-  const decode = decodeData(data, outputAbi)
+  const ret = await axios.post(_config.rpc, {
+    id: 1,
+    jsonrpc:"2.0",
+    method: "eth_call",
+    params: [{
+      to: _config.address,
+      data: requestData,
+    }, 'latest']
+  })
 
+  const {data:{result}} = ret
+  const data = AbiCoder.decodeParameters(CallAbi[0].outputs, result)
+  const decode = decodeData(data[0], outputAbi)
   return decode
 }
 
@@ -170,14 +168,16 @@ const getConfig = () => {
   return config
 }
 
-module.exports = {
+export default {
   getConfig,
+  setSolc,
   getCurrentChainId,
   call,
   addChain,
   setDefaultChainId,
   compile,
   getContractBytesCode,
-  getCallContract,
-  decodeData
+  decodeData,
+  ChainId,
+  Config
 }

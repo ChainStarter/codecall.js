@@ -10,7 +10,8 @@ This project contains smart contract and client.
 | Chain   | Address |
 |---------| ------- |
 | BSC     | [0xBF4b1bE1F00F5624ba4D65f8548ccF6E75d0deFe](https://bscscan.com/address/0xbf4b1be1f00f5624ba4d65f8548ccf6e75d0defe) |
-| Polygon | [0xBF4b1bE1F00F5624ba4D65f8548ccF6E75d0deFe](https://polygonscan.com/address/0xbf4b1be1f00f5624ba4d65f8548ccf6e75d0defe) 
+| Polygon | [0xBF4b1bE1F00F5624ba4D65f8548ccF6E75d0deFe](https://polygonscan.com/address/0xbf4b1be1f00f5624ba4d65f8548ccf6e75d0defe)
+| HECO    | [0x6427169aB7344F9C37E9dC9001c681BEcd09343d](https://hecoinfo.com/address/0x6427169aB7344F9C37E9dC9001c681BEcd09343d)
 
 ## Summary
 

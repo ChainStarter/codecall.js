@@ -1,3 +1,7 @@
+// importScripts("https://solc-bin.ethereum.org/wasm/soljson-v0.7.4+commit.3f05b770.js")
+
+import core from './core/web'
+
 const {
   getConfig,
   getCurrentChainId,
@@ -6,20 +10,10 @@ const {
   setDefaultChainId,
   compile,
   getContractBytesCode,
-  getCallContract,
-  decodeData} = require('./index')
-
-
-const isNode = (typeof exports === 'object') ? true: false;
-
-let context = this
-if(isNode) {
-  const {parentPort} = require("worker_threads");
-  context = parentPort
-}
+  decodeData } = core
 
 const response = (requestId, data = "", error = false, errorMsg = '') => {
-  context.postMessage({
+  self.postMessage({
     requestId,
     data,
     error,
@@ -31,7 +25,7 @@ const responseError = (requestId, message) => {
   response(requestId, "", true, message)
 }
 
-context.onmessage = (ev) => {
+self.onmessage = (ev) => {
   const {requestId, method, data} = ev.data
   switch (method) {
     case 'call':
@@ -83,13 +77,6 @@ context.onmessage = (ev) => {
     case "getContractBytesCode":
       try{
         response(requestId, getContractBytesCode(...data))
-      }catch (e){
-        responseError(requestId, e)
-      }
-      break;
-    case "getCallContract":
-      try{
-        response(requestId, getCallContract(...data))
       }catch (e){
         responseError(requestId, e)
       }
