@@ -21,15 +21,43 @@ This project contains smart contract and client.
 
 ## Installation
 
+### Step1: Install SDK
 ```bash
-yarn add @ChainStarter/codecall.js
+yarn add @chainstarter/codecall.js
 ```
 
+or 
+
+```bash
+ npm install --save @chainstarter/codecall.js
+```
+
+### Step2: Copy Worker to static folder
+
+```javascript
+// webpack CopyWebpackPlugin
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const webpackConfig = {
+  plugins : [
+      ...,
+      new CopyWebpackPlugin([ // add plugin
+        {
+          from: 'node_modules/@chainstarter/codecall.js/dist/codecall.worker.js',
+          to: 'codecall.worker.js'
+        }
+      ])
+  ]
+}
+
+
+```
 
 ## Usage
 
+### Web
 ```javascript
-import { call } from '@ChainStarter/codecall.js';
+import {Client}  from '@chainstarter/codecall.js'
+client = new Client()
 
 const code = `
         contract Request {
@@ -40,29 +68,40 @@ const code = `
             }
         }
     `
-// call and get data
-call(code).then(data => {
-  console.log(data); // output {a: '10', b: '1000', c: '1100'}
-})
+// call and print data
+client.call(code).then(console.log)
 ```
 
-
-## Other Functions
-### Add custom chain
+#### Add custom chain
 ```javascript
-import { addChain } from '@ChainStarter/codecall.js';
-
-addChain(4399,
+import { Client } from '@chainstarter/codecall.js';
+client = new Client()
+client.addChain(4399,
   {
     address: '0xBF4b1bE1F00F5624ba4D65f8548ccF6E75d0deFe', // You can publish the contract on other chains by yourself
     rpc: "{{RPC}}" // The node rpc address
   })
 ```
 
-### Set default chain
+#### Set default chain
 ```javascript
-import { setDefaultChainId } from '@ChainStarter/codecall.js';
-
+import { Client } from '@chainstarter/codecall.js';
+client = new Client()
 // set default chain
-setDefaultChainId(4399)
+client.setDefaultChainId(4399)
+```
+
+### Nodejs
+```javascript
+const {call} = require('@chainstarter/codecall.js/dist/node')
+// call data
+call(`
+        contract Request {
+            function exec() public returns (uint a, uint b){
+                a = 10;
+                b = 1000;
+            }
+        }
+`).then(console.log)
+
 ```

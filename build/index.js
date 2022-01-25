@@ -49,7 +49,7 @@ const coreConf = {
     }),
     json(),
     commonjs({
-      defaultIsModuleExports: false
+      defaultIsModuleExports: true
     }),
     terser(),
     cleanup(),

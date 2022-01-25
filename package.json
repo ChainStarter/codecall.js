@@ -1,6 +1,6 @@
 {
   "name": "@chainstarter/codecall.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Codecall.js can compile the solidity code in the js project, execute it remotely on the node and return the result.",
   "main": "dist/client.js",
   "scripts": {

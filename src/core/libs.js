@@ -58,7 +58,7 @@ const compile = (code) => {
       'request': {
         content: `
         // SPDX-License-Identifier: GPL-3.0
-        pragma solidity 0.7.4;
+        pragma solidity >= 0.7.0;
         ${code}
         `
       }
